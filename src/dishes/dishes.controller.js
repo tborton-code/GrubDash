@@ -12,12 +12,28 @@ const list = (req, res, next) => {
 };
 
 const create = (req, res, next) => {
+
 };
 
-const read = (req, res, next) => {
+function dishExists(req, res, next){
+    const dishId = req.params.id;
+    const foundDish = dishes.find(dish => dish.id === dishId);
+    if (foundDish){
+        res.locals.dish = foundDish;
+        return next();
+    } next({
+        status: 404,
+        message: `Dish Id not found: ${dishId}`
+    })
+};
+
+const read = (req, res) => {
+    const foundDish = res.locals.dish;
+    res.json({ data: foundDish});
 };
 
 const update = (req, res, next) => {
+    
 };
 
 module.exports = {

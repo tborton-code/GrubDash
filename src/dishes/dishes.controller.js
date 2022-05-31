@@ -12,7 +12,16 @@ const list = (req, res, next) => {
 };
 
 const create = (req, res, next) => {
-
+    const { data: { name, description, price, image_url } = {} } = req.body;
+    const newDish = {
+        id: nextId(),
+        name,
+        description,
+        price,
+        image_url,
+    };
+    dishes.push(newDish);
+    res.status(201).json({ data: newDish });
 };
 
 function dishExists(req, res, next){
@@ -27,7 +36,7 @@ function dishExists(req, res, next){
     })
 };
 
-const read = (req, res) => {
+const read = (req, res, next) => {
     const foundDish = res.locals.dish;
     res.json({ data: foundDish});
 };

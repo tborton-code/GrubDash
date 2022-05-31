@@ -37,14 +37,29 @@ function dishExists(req, res, next){
 };
 
 const read = (req, res, next) => {
-    const foundDish = res.locals.dish;
-    res.json({ data: foundDish});
+    res.json({ data: res.locals.dish});
 };
 
 const update = (req, res, next) => {
     
 };
 
+function dishHasRequiredFields(req, res, next){
+    const REQUIRED_FIELDS = ["name", "description", "image_url", "price"]
+    const {data = {}} = req.body
+    for (const field of REQUIRED_FIELDS) {
+        if (!req.body.data[field]){
+            return next({
+                status: 400,
+                message: `Field "${field}" is missing.`
+            })
+        } next();
+    }
+}
+
 module.exports = {
     list,
+    create: [dishHasRequiredFields, create],
+    read: [dishExists, read],
+    update: [dishHasRequiredFields, dishExists, update],
 }

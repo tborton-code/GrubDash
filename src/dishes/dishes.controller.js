@@ -11,6 +11,15 @@ const list = (req, res, next) => {
     res.json({data: dishes});
 };
 
+const create = (req, res, next) => {
+};
+
+const read = (req, res, next) => {
+};
+
+const update = (req, res, next) => {
+};
+
 module.exports = {
     list,
 }

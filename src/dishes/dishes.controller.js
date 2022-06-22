@@ -25,7 +25,7 @@ const create = (req, res, next) => {
 };
 
 function dishExists(req, res, next){
-    const dishId = req.params.id;
+    const dishId = req.params.dishId;
     const foundDish = dishes.find(dish => dish.id === dishId);
     if (foundDish){
         res.locals.dish = foundDish;
@@ -41,7 +41,13 @@ const read = (req, res, next) => {
 };
 
 const update = (req, res, next) => {
-    
+    const foundDish = res.locals.dish;
+    console.log("here", req.body)
+    const { data: { name, description, price, image_url } = {} } = req.body;
+    foundDish.name = name;
+    foundDish.description = description;
+
+    res.status(200).json({ data: foundDish });
 };
 
 function dishHasRequiredFields(req, res, next){
@@ -53,13 +59,24 @@ function dishHasRequiredFields(req, res, next){
                 status: 400,
                 message: `Field "${field}" is missing.`
             })
-        } next();
-    }
+        };
+    };
+    next();
+}
+
+function priceIsValid(req, res, next){
+    const dishPrice = req.body.data.price;
+    if(typeof dishPrice !="number" || dishPrice <= 0){
+        return next({
+            status: 400,
+            message: "Dish must have a price that is greater than 0"
+        });
+    } next();
 }
 
 module.exports = {
     list,
-    create: [dishHasRequiredFields, create],
+    create: [dishHasRequiredFields, priceIsValid, create],
     read: [dishExists, read],
-    update: [dishHasRequiredFields, dishExists, update],
+    update: [dishHasRequiredFields, dishExists, priceIsValid, update],
 }

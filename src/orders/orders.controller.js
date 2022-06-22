@@ -44,6 +44,22 @@ function update(req, res) {
     res.json({ data: res.locals.order });
 }
 
+function destroy(req, res) {
+    const index = orders.indexOf(res.locals.order);
+    orders.splice(index, 1);
+    res.status(204);
+}
+
+function validateDelete(req, res, next){
+    if(res.locals.order.status !== "pending"){
+        return next({
+            status: 400,
+            message: `An order cannot be deleted unless it is pending.`
+        })
+    }
+    next();
+}
+
 function validateOrder(req, res, next){
     const { data: { deliverTo, mobileNumber, dishes } = {} } = req.body;
     
@@ -111,4 +127,5 @@ module.exports = {
     create: [validateOrder, create],
     read: [validateOrderId, read],
     update: [validateOrder, validatesOrderId, validateStatus, update],
+    delete: [validateOrderId, validateDelete, destroy],
 }

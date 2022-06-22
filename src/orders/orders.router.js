@@ -7,7 +7,7 @@ router
     .route("/:orderId")
     .get(controller.read)
     .put(controller.update)
-//     .delete(controller.delete);
+    .delete(controller.delete);
 
 router
     .route("/")

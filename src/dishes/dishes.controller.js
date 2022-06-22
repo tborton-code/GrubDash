@@ -29,9 +29,7 @@ function dishExists(req, res, next){
     if (foundDish){
         res.locals.dish = foundDish;
         return next();
-    } 
-    console.log("Dish not found");
-    next({
+    } next({
         status: 404,
         message: `Dish Id not found: ${dishId}`
     })
@@ -64,7 +62,7 @@ function validateDishDetails(req, res, next){
     else if(price <= 0 || !Number.isInteger(price))
         message = "Dish must have a price that is an integer greater than 0";
     else if(!image_url || image_url==="")
-        message = "Dish must include an image_url";
+        message = "Dish must include an image url";
 
     if(message){
         return next({
@@ -89,5 +87,5 @@ module.exports = {
     list,
     create: [validateDishDetails, priceIsValid, create],
     read: [dishExists, read],
-    update: [dishExists, validateDishDetails, priceIsValid, update],
+    update: [validateDishDetails, dishExists, priceIsValid, update],
 }

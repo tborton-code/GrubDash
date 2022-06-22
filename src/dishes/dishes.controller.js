@@ -49,17 +49,27 @@ const update = (req, res, next) => {
     res.status(200).json({ data: foundDish });
 };
 
-function dishHasRequiredFields(req, res, next){
-    const REQUIRED_FIELDS = ["name", "description", "image_url", "price"]
-    const {data = {}} = req.body
-    for (const field of REQUIRED_FIELDS) {
-        if (!req.body.data[field]){
-            return next({
-                status: 400,
-                message: `Field "${field}" is missing.`
-            })
-        };
-    };
+function validateDishDetails(req, res, next){
+    const { data: { name, description, price, image_url } = {} } = req.body;
+    let message;
+
+    if(!name || name==="")
+        message = "Dish must include a name";
+    else if(!description || description==="")
+        message = "Dish must include a description";
+    else if(!price || price==="")
+        message = "Dish must include a price";
+    else if(price <= 0 || !Number.isInteger(price))
+        message = "Dish must have a price that is an integer greater than 0";
+    else if(!image_url || image_url==="")
+        message = "Dish must include an image url";
+
+    if(message){
+        return next({
+            status: 400,
+            message: message,
+        })
+    }
     next();
 }
 
@@ -75,7 +85,7 @@ function priceIsValid(req, res, next){
 
 module.exports = {
     list,
-    create: [dishHasRequiredFields, priceIsValid, create],
+    create: [validateDishDetails, priceIsValid, create],
     read: [dishExists, read],
-    update: [dishHasRequiredFields, dishExists, priceIsValid, update],
+    update: [validateDishDetails, dishExists, priceIsValid, update],
 }

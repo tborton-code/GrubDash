@@ -31,6 +31,19 @@ function read(req, res, next) {
     res.json({ data: res.locals.order });
 }
 
+function update(req, res) {
+    const { data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body;
+
+    res.locals.order = {
+        id: res.locals.order.id,
+        deliverTo: deliverTo,
+        mobileNumber: mobileNumber,
+        dishes: dishes,
+        status: status,
+    };
+    res.json({ data: res.locals.order });
+}
+
 function validateOrder(req, res, next){
     const { data: { deliverTo, mobileNumber, dishes } = {} } = req.body;
     
@@ -72,9 +85,30 @@ function validateOrderId(req, res, next){
     })
 }
 
+function validateStatus(req, res, next){
+    const {orderId} = req.params;
+    const {data: {id, status}={}} = req.body;
+
+    let message;
+    if(id && id !== orderId)
+        message = `Order id does not match route id. Order: ${id}, Route: ${orderId}.`
+    else if(!status || status === "" || (status !== "pending" && status !== "preparing" && status !== "out-for-delivery"))
+        message = "Order must have a status of pending, preparing, or out-for-delivery, delivered";
+    else if(status === "delivered")
+        message = "A delivered order cannot be changed";
+    
+    if(message){
+        return next({
+            status: 400,
+            message: message,
+        })
+        next();
+    }
+}
 
 module.exports = {
     list,
     create: [validateOrder, create],
     read: [validateOrderId, read],
+    update: [validateOrder, validatesOrderId, validateStatus, update],
 }

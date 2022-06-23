@@ -44,7 +44,7 @@ function update(req, res) {
 function destroy(req, res) {
     const index = orders.indexOf(res.locals.order);
     orders.splice(index, 1);
-    res.status(204);
+    res.sendStatus(204);
 }
 
 function validateDelete(req, res, next){
@@ -59,34 +59,34 @@ function validateDelete(req, res, next){
 
 function validateOrder(req, res, next){
     const { data: { deliverTo, mobileNumber, dishes } = {} } = req.body;
-    
     let message;
-    if(!deliverTo || deliverTo ==="")
-        message = "Order must include a deliverTo";
-    else if(!mobileNumber || mobileNumber === "")
-        message = "Order must include a mobileNumber";
-    else if(!dishes)
-        message = "Order must include a dish";
-    else if(!Array.isArray(dishes) || dishes.length === 0)
-        message = "Order must include at least one dish";
+    if(!deliverTo || deliverTo ===""){
+        message = "Order must include a deliverTo";}
+    else if(!mobileNumber || mobileNumber === ""){
+        message = "Order must include a mobileNumber";}
+    else if(!dishes){
+        message = "Order must include a dish";}
+    else if(!Array.isArray(dishes) || dishes.length === 0){
+        message = "Order must include at least one dish";}
     else {
-        for (const dish of dishes){
-            if(!dish.quantity || dish.quantity <= 0 ||!Number.isInteger(dish.quantity))
-                message = `Dish ${dish} must have a quantity that is an integer greater than 0`;
+        for (let i=0; i<dishes.length; i++){
+            if(!dishes[i].quantity || dishes[i].quantity <= 0 || !Number.isInteger(dishes[i].quantity))
+                message = `Dish ${i} must have a quantity that is an integer greater than 0`;
         }
     }
     if(message){
         return next({
             status: 400,
             message: message,
-        })
-        next();
+        })    
     }
+
+    next();
 }
 
 function validateOrderId(req, res, next){
     const {orderId} = req.params;
-    const foundOrder = orders.find(order => order.id === orderId);
+    const foundOrder = orders.find((order) => order.id === orderId);
 
     if(foundOrder){
         res.locals.order = foundOrder;
@@ -94,7 +94,7 @@ function validateOrderId(req, res, next){
     }
     next({
         status: 404,
-        message: `Order Id not found: ${orderId}`
+        message: `Order id does not exist: ${orderId}`,
     })
 }
 
@@ -115,8 +115,9 @@ function validateStatus(req, res, next){
             status: 400,
             message: message,
         })
-        next();
     }
+    next();
+
 }
 
 module.exports = {

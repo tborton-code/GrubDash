@@ -41,7 +41,6 @@ const read = (req, res, next) => {
 
 const update = (req, res, next) => {
     const foundDish = res.locals.dish;
-    console.log("here", req.body)
     const { data: { name, description, price, image_url } = {} } = req.body;
     foundDish.name = name;
     foundDish.description = description;
@@ -62,7 +61,7 @@ function validateDishDetails(req, res, next){
     else if(price <= 0 || !Number.isInteger(price))
         message = "Dish must have a price that is an integer greater than 0";
     else if(!image_url || image_url==="")
-        message = "Dish must include an image url";
+        message = "Dish must include an image_url";
 
     if(message){
         return next({
@@ -83,9 +82,22 @@ function priceIsValid(req, res, next){
     } next();
 }
 
+function validateMatchingIds(req, res, next){
+    const {dishId} = req.params;
+    const {data: {id} = {}} = req.body;
+
+    if(!id || id === dishId) {
+        return next()
+    }
+    next({
+        status: 400,
+        message: `Dish id does not match route id. Dish: ${id}, Route: ${dishId}`
+    })
+}
+
 module.exports = {
     list,
     create: [validateDishDetails, priceIsValid, create],
     read: [dishExists, read],
-    update: [validateDishDetails, dishExists, priceIsValid, update],
+    update: [dishExists, validateDishDetails, priceIsValid, validateMatchingIds, update],
 }
